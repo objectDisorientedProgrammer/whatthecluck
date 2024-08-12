@@ -9,6 +9,7 @@ g++ chicken_game.cpp -Iraylib-5.0_linux_amd64/include/ raylib-5.0_linux_amd64/li
 using std::cout;
 
 #define DEBUG_CHEATS 1
+#define DEBUG_VISUAL_HELPERS 0
 
 #if DEBUG_CHEATS
 void printVector2(Vector2 v)
@@ -18,12 +19,12 @@ void printVector2(Vector2 v)
 #endif
 
 int score = 0;
-    bool got_food = false;
-    float timeout = 4.0f; //seconds
-    int speech_x = 0;
-    int speech_y = 0;
-    float speech_lifetime = 4.0f;
-std::string speech{"cheep!"};
+bool got_food = false;
+float timeout = 4.0f; //seconds
+int speech_x = 0;
+int speech_y = 0;
+float speech_lifetime = 4.0f;
+std::string speech{std::string("cheep!")};
 
 const int PLAYER_CHICK = 1;
 const int PLAYER_CHICKEN = 2;
@@ -35,7 +36,15 @@ const float CHICKEN_SPEED = 200.0f;
 float MOVE_SPEED = 300.0f;
 
 const float CHICK_SIZE = 22.0f;
+const float CHICKEN_SIZE = 40.0f;
 float character_size = CHICK_SIZE;
+
+const Color CHICK_PRIMARY_COLOR{YELLOW};
+const Color CHICK_SECONDARY_COLOR{GOLD};
+const Color CHICKEN_PRIMARY_COLOR{WHITE};
+const Color CHICKEN_SECONDARY_COLOR{220, 220, 220, 255};
+Color player_primary_color{CHICK_PRIMARY_COLOR};
+Color player_secondary_color{CHICK_SECONDARY_COLOR};
 
 float x = 100.0f;
 float y = 100.0f;
@@ -53,22 +62,26 @@ void draw_character(int state)
 {
     switch (state)
     {
+    // Set values for Chick
     case PLAYER_CHICK:
         character_size = CHICK_SIZE;
         MOVE_SPEED = CHICK_SPEED;
-        //DrawCircle(x, y, character_size, GOLD);
-        DrawCircleGradient(x, y, character_size, YELLOW, GOLD);
-        
+        speech = std::string("cheep!");
+        player_primary_color = CHICK_PRIMARY_COLOR;
+        player_secondary_color = CHICK_SECONDARY_COLOR;
         break;
+    // Set values for Chicken
     case PLAYER_CHICKEN:
-        //character_size = 40.0f;
+        character_size = CHICKEN_SIZE;
         MOVE_SPEED = CHICKEN_SPEED;
-        //DrawCircle(x, y, 40.0f, CLITERAL(Color){ 235, 235, 235, 255 });
-        DrawCircleGradient(x, y, 40.0f, WHITE, CLITERAL(Color){ 220, 220, 220, 255 });
+        speech = std::string("Cluck!");
+        player_primary_color = CHICKEN_PRIMARY_COLOR;
+        player_secondary_color = CHICKEN_SECONDARY_COLOR;
         break;
     default:
         break;
     }
+    DrawCircleGradient(x, y, character_size, player_primary_color, player_secondary_color);
 
     if(IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) 
     {
@@ -156,11 +169,14 @@ void draw_food()
 
 void update_game_state()
 {
-    if(score == 6)
+    if(score == 6
+    #if DEBUG_CHEATS
+    || PLAYER_MODEL == PLAYER_CHICKEN
+    #endif
+    )
     {
         PLAYER_MODEL = PLAYER_CHICKEN;
-        character_size = 40.0f;
-        speech = std::string("Cluck!");
+        
     }
     // player boundry collision
     if((IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) && x + (character_size*beak_len_factor) < GetScreenWidth()) x += MOVE_SPEED * GetFrameTime();
@@ -169,7 +185,11 @@ void update_game_state()
     if((IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) && y - (character_size*beak_len_factor) >= 0) y -= MOVE_SPEED * GetFrameTime();
 
     // object collision calculations
-    if(CheckCollisionRecs({x, y, character_size, character_size}, grain.r))
+    #if DEBUG_VISUAL_HELPERS
+    // show the collision boundry of the player
+    DrawRectangleLines(x-character_size, y-character_size, character_size*2, character_size*2, WHITE);
+    #endif
+    if(CheckCollisionRecs({x-character_size, y-character_size, character_size*2, character_size*2}, grain.r))
     // if(CheckCollisionRecs({x-(character_size*beak_len_factor),y-(character_size*beak_len_factor),x+character_size,y+character_size}, grain.r))
     {
         got_food = true;      
@@ -228,7 +248,6 @@ int main(void)
     // main game loop
     while (!WindowShouldClose())
     {
-        // update game state
         update_game_state();
         
         // debug helpers
@@ -239,7 +258,6 @@ int main(void)
             PLAYER_MODEL = PLAYER_CHICKEN;
         #endif
 
-        // draw the game
         draw_game();
     }
 
