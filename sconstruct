@@ -1,0 +1,12 @@
+env = Environment(CPPPATH=['../raylib-5.0_linux_amd64/include/'])
+Export('env')
+
+executable_name = 'wtc'
+srcs = ['wtc.cpp']
+
+SConscript(['ui/sconscript'])
+
+
+env.Program(executable_name, srcs, LIBS=['libraylib.so'], LIBPATH='../raylib-5.0_linux_amd64/lib/')
+
+

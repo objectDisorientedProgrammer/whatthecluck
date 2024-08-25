@@ -1,0 +1,6 @@
+Import('env')
+
+executable_name = 'test_ui'
+srcs = ['button.cpp', 'input_device.cpp', 'mouse_input.cpp', 'ui_test.cpp']
+
+env.Program(executable_name, srcs, LIBS=['libraylib.a'], LIBPATH='../raylib-5.0_linux_amd64/lib/')
