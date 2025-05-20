@@ -77,14 +77,22 @@ void draw_character(int state)
         speech = std::string("Cluck!");
         player_primary_color = CHICKEN_PRIMARY_COLOR;
         player_secondary_color = CHICKEN_SECONDARY_COLOR;
+
         break;
     default:
         break;
     }
     DrawCircleGradient(x, y, character_size, player_primary_color, player_secondary_color);
 
+    int roostW = 0;
+    int roostH = 0;
+
+    float prev_char_size = character_size;
+    character_size = CHICK_SIZE;
     if(IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) 
     {
+        roostW=8;
+        roostH=4;
         beak1.x = x-character_size+break_recess;
         beak1.y = y-character_size/2.0f;
         beak2.x = x-character_size*beak_len_factor;
@@ -99,6 +107,8 @@ void draw_character(int state)
     }
     else if(IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN))
     {
+        roostW=4;
+        roostH=8;
         beak1.x = x-character_size/2.0f;
         beak1.y = y+character_size-break_recess;
         beak2.x = x;
@@ -113,6 +123,8 @@ void draw_character(int state)
     }
     else if(IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT))
     {
+        roostW=8;
+        roostH=4;
         beak1.x = x+character_size-break_recess;
         beak1.y = y+character_size/2.0f;
         beak2.x = x+character_size*beak_len_factor;
@@ -127,6 +139,8 @@ void draw_character(int state)
     }
     else if(IsKeyDown(KEY_W) || IsKeyDown(KEY_UP))
     {
+        roostW=4;
+        roostH=8;
         beak1.x = x+character_size/2.0f;
         beak1.y = y-character_size+break_recess;
         beak2.x = x;
@@ -139,9 +153,14 @@ void draw_character(int state)
         eye2.x = x + 12.0f;
         eye2.y = y - 8.0f;
     }
+    // TODO
+    // if (state == PLAYER_CHICKEN)
+    //     DrawRectangle(x-2, y-4, roostW, roostH, RED);
     DrawTriangle(beak1, beak2, beak3, ORANGE);
     DrawCircleV(eye, 2.0f, BLACK);
     DrawCircleV(eye2, 2.0f, BLACK);
+
+    character_size = prev_char_size;
 }
 
 class Food
